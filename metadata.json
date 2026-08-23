@@ -1,0 +1,6 @@
+{
+  "name": "Macro Portal Engine",
+  "description": "Multiplayer 3D world building engine, cross-tabletop spatial matrix, and ATB action battle arena featuring 3x Autocast overdrive, cross-boundary mortar ballistics, unit leaping chutes, live canvas portals, and custom hero rosters.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
