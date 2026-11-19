@@ -20,4 +20,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "KirbyMeshPortal"
-include(":app")\n
+include(":app")

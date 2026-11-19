@@ -189,4 +189,4 @@ class KirbyVisitorAccessPointService : Service() {
         isRunning = false
         serverSocket?.close()
     }
-}\n
+}

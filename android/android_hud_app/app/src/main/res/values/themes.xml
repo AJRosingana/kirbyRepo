@@ -8,4 +8,4 @@
         <item name="colorPrimary">@color/kirby_pink</item>
         <item name="android:statusBarColor">@color/mesh_dark</item>
     </style>
-</resources>\n
+</resources>
