@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚔️ Kirby Cloned Combat &amp; Kung Fu Desktop Overlay 🥋</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Bangers&family=Orbitron:wght@500;800;900&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink-kirby: #ff7bac;
+            --pink-glow: #f43f5e;
+            --shadow-kirby: #a855f7;
+            --shadow-glow: #7c3aed;
+            --gold-accent: #fde047;
+            --cyan-neon: #06b6d4;
+            --font-mono: 'Fira Code', monospace;
+            --font-comic: 'Bangers', cursive, sans-serif;
+            --font-cyber: 'Orbitron', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background: #090d16;
+            color: #f8fafc;
+            font-family: var(--font-mono);
+        }
+
+        /* --- WRAPPER THEMES --- */
+        body.theme-transparent {
+            background: rgba(10, 15, 25, 0.85);
+        }
+
+        /* 1. Manga Comic Book Wrapper */
+        .wrapper-manga {
+            border: 4px solid #f8fafc;
+            border-radius: 12px;
+            box-shadow: 10px 10px 0px #000, 0 0 30px rgba(0,0,0,0.8);
+            background: #11141a;
+            position: relative;
+        }
+        .wrapper-manga .comic-title-banner {
+            background: #000;
+            color: #fff;
+            font-family: var(--font-comic);
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            padding: 6px 16px;
+            border-bottom: 3px solid #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 2. Retro Arcade 90s Wrapper */
+        .wrapper-arcade {
+            border: 6px ridge #dc2626;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(220, 38, 38, 0.4), inset 0 0 20px rgba(0,0,0,0.9);
+            background: #050508;
+            position: relative;
+        }
+        .wrapper-arcade::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 20;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* 3. Cyberpunk Glitch HUD Wrapper */
+        .wrapper-cyberpunk {
+            border: 2px solid var(--cyan-neon);
+            border-radius: 4px;
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.3), inset 0 0 15px rgba(6, 182, 212, 0.15);
+            background: #020617;
+            position: relative;
+        }
+        .wrapper-cyberpunk .hud-grid {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+            background-size: 24px 24px;
+            pointer-events: none;
+        }
+
+        /* 4. Minimalist Glass Desktop Wrapper */
+        .wrapper-glass {
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        /* Master Stage Container */
+        #combatStage {
+            width: 94vw;
+            height: 82vh;
+            margin: 2vh auto;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Top HUD Bar */
+        .combat-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            z-index: 10;
+        }
+
+        .fighter-meter {
+            display: flex;
+            flex-direction: column;
+            width: 38%;
+        }
+
+        .meter-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .meter-bar-outer {
+            width: 100%;
+            height: 18px;
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .meter-bar-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.15s ease-out;
+        }
+
+        .p1-fill { background: linear-gradient(90deg, #f43f5e, #ff7bac); }
+        .p2-fill { background: linear-gradient(90deg, #7c3aed, #c084fc); }
+
+        .super-meter {
+            height: 6px;
+            margin-top: 4px;
+            background: #0f172a;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .super-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gold-accent);
+            box-shadow: 0 0 8px var(--gold-accent);
+            transition: width 0.2s;
+        }
+
+        .hud-center-badge {
+            font-family: var(--font-comic);
+            font-size: 2.2rem;
+            color: var(--gold-accent);
+            text-shadow: 0 0 10px rgba(253, 224, 71, 0.6);
+            letter-spacing: 2px;
+        }
+
+        /* The Kung Fu Arena Canvas / Viewport */
+        #arenaCanvas {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Sprites & Cloned Overlay Actors */
+        .fighter-actor {
+            position: absolute;
+            font-family: var(--font-mono);
+            font-size: 16px;
+            line-height: 1.2;
+            white-space: pre;
+            transform-origin: center bottom;
+            transition: transform 0.05s linear;
+            cursor: grab;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+        }
+
+        .fighter-actor:active {
+            cursor: grabbing;
+        }
+
+        #fighter1 {
+            color: var(--pink-kirby);
+            text-shadow: 0 0 12px rgba(255, 123, 172, 0.5);
+        }
+
+        #fighter2 {
+            color: var(--shadow-kirby);
+            text-shadow: 0 0 12px rgba(168, 85, 247, 0.5);
+        }
+
+        /* Dynamic Speech & Manga Balloons */
+        .speech-balloon {
+            position: absolute;
+            background: #fff;
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(10px) scale(0.8);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 15;
+        }
+
+        .speech-balloon.active {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .speech-balloon::after {
+            content: "";
+            position: absolute;
+            bottom: -8px;
+            left: 20px;
+            border-width: 8px 8px 0;
+            border-style: solid;
+            border-color: #fff transparent;
+            display: block;
+            width: 0;
+        }
+
+        /* Impact SFX Bursts (*WHAM!*, *POYO-KICK!*) */
+        .sfx-burst {
+            position: absolute;
+            font-family: var(--font-comic);
+            font-size: 2.2rem;
+            color: #ef4444;
+            text-shadow: 3px 3px 0 #000, 0 0 15px #f59e0b;
+            letter-spacing: 2px;
+            pointer-events: none;
+            opacity: 0;
+            transform: scale(0.5) rotate(-10deg);
+            transition: all 0.15s ease-out;
+            z-index: 25;
+        }
+
+        .sfx-burst.active {
+            opacity: 1;
+            transform: scale(1.3) rotate(5deg);
+        }
+
+        /* Bottom Controls & Wrapper Switcher */
+        .controls-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.82rem;
+            z-index: 30;
+        }
+
+        .wrapper-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-wrapper {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            transition: all 0.2s;
+        }
+
+        .btn-wrapper:hover {
+            background: #334155;
+            color: #fff;
+        }
+
+        .btn-wrapper.active {
+            background: #3b82f6;
+            border-color: #60a5fa;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            background: #22c55e;
+            border: none;
+            color: #000;
+            font-weight: 700;
+            padding: 6px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            background: #4ade80;
+            transform: translateY(-1px);
+        }
+
+        /* Braille Particle Canvas */
+        #particleCanvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body class="theme-transparent">
+
+    <div id="combatStage" class="wrapper-manga">
+        <!-- TOP HUD -->
+        <div class="combat-hud">
+            <!-- P1: Hero Pink Kirby -->
+            <div class="fighter-meter">
+                <div class="meter-label">
+                    <span style="color:var(--pink-kirby);">🌸 P1: PINK HERO</span>
+                    <span id="p1-hp-text">100 HP</span>
+                </div>
+                <div class="meter-bar-outer">
+                    <div id="p1-hp-bar" class="meter-bar-fill p1-fill"></div>
+                </div>
+                <div class="super-meter">
+                    <div id="p1-super-bar" class="super-fill"></div>
+                </div>
+            </div>
+
+            <!-- KO Badge -->
+            <div class="hud-center-badge" id="hud-badge">VS</div>
+
+            <!-- P2: Shadow Clone -->
+            <div class="fighter-meter">
+                <div class="meter-label" style="justify-content:flex-end;">
+                    <span id="p2-hp-text">100 HP</span>
+                    <span style="color:var(--shadow-kirby); margin-left:12px;">P2: SHADOW CLONE ⚔️</span>
+                </div>
+                <div class="meter-bar-outer">
+                    <div id="p2-hp-bar" class="meter-bar-fill p2-fill"></div>
+                </div>
+                <div class="super-meter">
+                    <div id="p2-super-bar" class="super-fill" style="margin-left:auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COMBAT ARENA -->
+        <div id="arenaCanvas">
+            <canvas id="particleCanvas"></canvas>
+
+            <!-- Fighter 1 (Pink Kirby) -->
+            <div id="fighter1" class="fighter-actor"> (づ｡◕‿◕｡)づ
+   /|_|\
+   / \   </div>
+
+            <!-- Fighter 2 (Shadow Clone) -->
+            <div id="fighter2" class="fighter-actor"> ( ▀ ͜ʖ ▀ ) 
+   /|_|\   
+   / \     </div>
+
+            <!-- Speech Balloons -->
+            <div id="balloon1" class="speech-balloon">POYO! 🌸</div>
+            <div id="balloon2" class="speech-balloon">Too slow! 🐾</div>
+
+            <!-- SFX Bursts -->
+            <div id="sfxBurst" class="sfx-burst">💥 *WHAM!*</div>
+        </div>
+
+        <!-- CONTROLS & WRAPPER SWITCHER -->
+        <div class="controls-bar">
+            <div class="wrapper-buttons">
+                <span style="color:#64748b; line-height:28px; margin-right:6px;">WRAPPERS:</span>
+                <button class="btn-wrapper active" onclick="setWrapper('manga')">📖 Manga Comic</button>
+                <button class="btn-wrapper" onclick="setWrapper('arcade')">🕹️ 90s Arcade</button>
+                <button class="btn-wrapper" onclick="setWrapper('cyberpunk')">⚡ Cyberpunk HUD</button>
+                <button class="btn-wrapper" onclick="setWrapper('glass')">🪟 Desktop Glass</button>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn-action" id="btn-spar" onclick="toggleAutoSpar()">🥋 Auto-Sparring: ON</button>
+                <button class="btn-action" style="background:#3b82f6; color:#fff;" onclick="resetFight()">🔄 Reset Match</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================================================================
+        // SYNTHESIZED WEB AUDIO API SOUND GENERATOR (Zero External Assets)
+        // ====================================================================
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const now = audioCtx.currentTime;
+
+            if (type === 'punch') {
+                // Low thud + white noise burst
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.exponentialRampToValueAtTime(30, now + 0.15);
+                gain.gain.setValueAtTime(0.8, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.15);
+            } else if (type === 'kick') {
+                // Swoop pitch
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.22);
+                gain.gain.setValueAtTime(0.7, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.22);
+            } else if (type === 'block') {
+                // Metallic high ring
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(650, now);
+                osc.frequency.exponentialRampToValueAtTime(350, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.1);
+            } else if (type === 'super') {
+                // Ascending cosmic arpeggio
+                [440, 554, 659, 880].forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                    gain.gain.setValueAtTime(0.4, now + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.06 + 0.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.06);
+                    osc.stop(now + idx * 0.06 + 0.2);
+                });
+            }
+        }
+
+        // ====================================================================
+        // KUNG FU FIGHTER STATE & PHYSICS
+        // ====================================================================
+        const stage = document.getElementById('combatStage');
+        const arena = document.getElementById('arenaCanvas');
+        const elF1 = document.getElementById('fighter1');
+        const elF2 = document.getElementById('fighter2');
+        const elBalloon1 = document.getElementById('balloon1');
+        const elBalloon2 = document.getElementById('balloon2');
+        const elSfx = document.getElementById('sfxBurst');
+
+        const p1Bar = document.getElementById('p1-hp-bar');
+        const p2Bar = document.getElementById('p2-hp-bar');
+        const p1Text = document.getElementById('p1-hp-text');
+        const p2Text = document.getElementById('p2-hp-text');
+        const p1Super = document.getElementById('p1-super-bar');
+        const p2Super = document.getElementById('p2-super-bar');
+        const hudBadge = document.getElementById('hud-badge');
+
+        let autoSparring = true;
+        let p1 = { x: 120, y: 0, vx: 0, vy: 0, hp: 100, super: 0, state: 'IDLE', timer: 0, facing: 1 };
+        let p2 = { x: 620, y: 0, vx: 0, vy: 0, hp: 100, super: 0, state: 'IDLE', timer: 0, facing: -1 };
+
+        const SPRITES = {
+            IDLE_P1: " (づ｡◕‿◕｡)づ\n   /|_|\\   \n   / \\     ",
+            IDLE_P2: " ( ▀ ͜ʖ ▀ ) \n   /|_|\\   \n   / \\     ",
+            PUNCH_R: " (•̀ᴗ•́)っ🥊\n  /|_|\\   \n  _\\ \\_   ",
+            PUNCH_L: "🥊c(•̀ᴗ•́) \n   /|_|\\  \n   _/ /_  ",
+            KICK_R:  " ╰(°ㅂ°╰) \n   /|_|\\  \n  _/  🦵═ ",
+            KICK_L:  " (╯°ㅂ°)╯ \n   /|_|\\  \n ═🦵  \\_  ",
+            SUPER_R: " ~(>_<~)====🦵\n   /|_|\\      \n              ",
+            SUPER_L: "🦵====(~>_<)~ \n      /|_|\\   \n              ",
+            BLOCK:   " |(•̀_•́)|\n  [🛡️🛡️]  \n   / \\   ",
+            HURT:    " (> _ <) \n ~\\|_|/~ \n   / \\   ",
+            KO:      " (x _ x) \n  /|_|\\  \n  _\\ /_  "
+        };
+
+        function setWrapper(mode) {
+            stage.className = `wrapper-${mode}`;
+            document.querySelectorAll('.btn-wrapper').forEach(b => {
+                b.classList.toggle('active', b.textContent.toLowerCase().includes(mode));
+            });
+            playSound('block');
+        }
+
+        function triggerSpeech(balloonEl, text, x, y) {
+            balloonEl.textContent = text;
+            balloonEl.style.left = `${x}px`;
+            balloonEl.style.top = `${y - 45}px`;
+            balloonEl.classList.add('active');
+            setTimeout(() => balloonEl.classList.remove('active'), 1200);
+        }
+
+        function triggerSfx(text, x, y) {
+            elSfx.textContent = text;
+            elSfx.style.left = `${x}px`;
+            elSfx.style.top = `${y - 30}px`;
+            elSfx.classList.add('active');
+            setTimeout(() => elSfx.classList.remove('active'), 500);
+        }
+
+        function updateFighter(f, opp, isP1) {
+            const floor = arena.clientHeight - 85;
+            f.y = floor; // 2D floor baseline
+
+            if (f.state === 'KO') return;
+
+            // Timer countdown for active attacks/reactions
+            if (f.timer > 0) {
+                f.timer--;
+                if (f.timer === 0) f.state = 'IDLE';
+            }
+
+            f.facing = (f.x < opp.x) ? 1 : -1;
+
+            if (autoSparring && f.state === 'IDLE') {
+                const dist = Math.abs(f.x - opp.x);
+                const r = Math.random();
+
+                if (dist > 180) {
+                    if (r < 0.6) { f.vx = 4 * f.facing; }
+                    else if (r < 0.8 && f.super >= 50) {
+                        // Super Dragon Kick
+                        f.state = 'SUPER';
+                        f.timer = 18;
+                        f.vx = 9 * f.facing;
+                        f.super -= 50;
+                        playSound('super');
+                        triggerSpeech(isP1 ? elBalloon1 : elBalloon2, "POYO DRAGON FLURRY! ⚡", f.x, f.y);
+                    }
+                } else if (dist > 75) {
+                    if (r < 0.4) { f.vx = 3 * f.facing; }
+                    else if (r < 0.7) {
+                        f.state = 'KICK';
+                        f.timer = 12;
+                        f.vx = 2 * f.facing;
+                        playSound('kick');
+                        if (Math.random() < 0.3) triggerSpeech(isP1 ? elBalloon1 : elBalloon2, "HI-YAH! 🥋", f.x, f.y);
+                    } else if (r < 0.85) {
+                        f.state = 'BLOCK';
+                        f.timer = 15;
+                        f.vx = -1 * f.facing;
+                    }
+                } else {
+                    // Close range
+                    if (r < 0.5) {
+                        f.state = 'PUNCH';
+                        f.timer = 10;
+                        playSound('punch');
+                    } else if (r < 0.8) {
+                        f.state = 'KICK';
+                        f.timer = 12;
+                        playSound('kick');
+                    } else {
+                        f.state = 'BLOCK';
+                        f.timer = 12;
+                    }
+                }
+            }
+
+            // Move & clamp
+            f.x += f.vx;
+            f.vx *= 0.82; // friction
+            const maxW = arena.clientWidth - 110;
+            if (f.x < 10) { f.x = 10; f.vx = 0; }
+            if (f.x > maxW) { f.x = maxW; f.vx = 0; }
+
+            // Collision check
+            const dist = Math.abs(p1.x - p2.x);
+            if (dist < 85 && (f.state === 'PUNCH' || f.state === 'KICK' || f.state === 'SUPER') && f.timer === 6) {
+                const isBlocked = (opp.state === 'BLOCK');
+                let dmg = (f.state === 'SUPER') ? 22 : ((f.state === 'KICK') ? 12 : 7);
+                let impulse = (f.state === 'SUPER') ? 14 : ((f.state === 'KICK') ? 8 : 5);
+
+                if (isBlocked) {
+                    dmg = Math.max(2, Math.floor(dmg / 4));
+                    opp.vx = impulse * 0.4 * f.facing;
+                    playSound('block');
+                    triggerSfx("🛡️ *PARRY!*", (f.x + opp.x) / 2, f.y - 20);
+                } else {
+                    opp.hp = Math.max(0, opp.hp - dmg);
+                    opp.state = 'HURT';
+                    opp.timer = 12;
+                    opp.vx = impulse * f.facing;
+                    f.super = Math.min(100, f.super + 20);
+                    playSound('punch');
+
+                    const sfxTxt = (f.state === 'SUPER') ? "⚡ *GIGA POYO!* ⚡" : ((f.state === 'KICK') ? "🥋 *KAPOW!*" : "💥 *WHAM!*");
+                    triggerSfx(sfxTxt, (f.x + opp.x) / 2, f.y - 30);
+                }
+
+                if (opp.hp <= 0) {
+                    opp.state = 'KO';
+                    hudBadge.textContent = "K.O.!";
+                    hudBadge.style.color = "#ef4444";
+                    playSound('super');
+                }
+            }
+        }
+
+        function renderFighter(el, f, isP1) {
+            el.style.left = `${f.x}px`;
+            el.style.top = `${f.y}px`;
+
+            if (f.state === 'KO') el.textContent = SPRITES.KO;
+            else if (f.state === 'HURT') el.textContent = SPRITES.HURT;
+            else if (f.state === 'BLOCK') el.textContent = SPRITES.BLOCK;
+            else if (f.state === 'SUPER') el.textContent = (f.facing === 1) ? SPRITES.SUPER_R : SPRITES.SUPER_L;
+            else if (f.state === 'KICK')  el.textContent = (f.facing === 1) ? SPRITES.KICK_R : SPRITES.KICK_L;
+            else if (f.state === 'PUNCH') el.textContent = (f.facing === 1) ? SPRITES.PUNCH_R : SPRITES.PUNCH_L;
+            else el.textContent = isP1 ? SPRITES.IDLE_P1 : SPRITES.IDLE_P2;
+        }
+
+        function gameLoop() {
+            updateFighter(p1, p2, true);
+            updateFighter(p2, p1, false);
+
+            renderFighter(elF1, p1, true);
+            renderFighter(elF2, p2, false);
+
+            // Update Meters
+            p1Bar.style.width = `${p1.hp}%`;
+            p2Bar.style.width = `${p2.hp}%`;
+            p1Text.textContent = `${p1.hp} HP`;
+            p2Text.textContent = `${p2.hp} HP`;
+            p1Super.style.width = `${p1.super}%`;
+            p2Super.style.width = `${p2.super}%`;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function toggleAutoSpar() {
+            autoSparring = !autoSparring;
+            document.getElementById('btn-spar').textContent = autoSparring ? "🥋 Auto-Sparring: ON" : "🎮 Manual Mode";
+        }
+
+        function resetFight() {
+            p1.hp = 100; p1.x = 120; p1.state = 'IDLE'; p1.super = 0;
+            p2.hp = 100; p2.x = arena.clientWidth - 220; p2.state = 'IDLE'; p2.super = 0;
+            hudBadge.textContent = "VS";
+            hudBadge.style.color = "var(--gold-accent)";
+            playSound('super');
+        }
+
+        // Draggable Overlay Actors
+        [elF1, elF2].forEach((el, idx) => {
+            let isDragging = false;
+            let startX, startY;
+            el.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX - ((idx === 0) ? p1.x : p2.x);
+            });
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const newX = e.clientX - startX;
+                if (idx === 0) p1.x = newX; else p2.x = newX;
+            });
+            window.addEventListener('mouseup', () => isDragging = false);
+        });
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const wrappers = ['manga', 'arcade', 'cyberpunk', 'glass'];
+                const cur = stage.className.replace('wrapper-', '');
+                const next = wrappers[(wrappers.indexOf(cur) + 1) % wrappers.length];
+                setWrapper(next);
+            }
+            if (e.key === ' ' || e.code === 'Space') {
+                e.preventDefault();
+                toggleAutoSpar();
+            }
+            // Manual controls: J = Punch, K = Kick, L = Block
+            if (!autoSparring) {
+                if (e.key === 'j' || e.key === 'J') { p1.state = 'PUNCH'; p1.timer = 10; playSound('punch'); }
+                if (e.key === 'k' || e.key === 'K') { p1.state = 'KICK'; p1.timer = 12; playSound('kick'); }
+                if (e.key === 'l' || e.key === 'L') { p1.state = 'BLOCK'; p1.timer = 15; }
+                if (e.key === 'a' || e.key === 'A') { p1.vx = -6; }
+                if (e.key === 'd' || e.key === 'D') { p1.vx = 6; }
+            }
+        });
+
+        // Kick off
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>

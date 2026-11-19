@@ -1,0 +1,6 @@
+#!/bin/bash
+if [ -f /mnt/shared/AntiGravity_Shared/launch_kirby.sh ]; then
+    exec /bin/bash /mnt/shared/AntiGravity_Shared/launch_kirby.sh "$@"
+else
+    exec python3 /home/droid/.local/share/orca_strata/orca_strata_porpoise_sync.py "$@"
+fi

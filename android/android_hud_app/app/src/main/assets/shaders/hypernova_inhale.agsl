@@ -1,0 +1,35 @@
+// 🌸 Hypernova Inhale Gravitational Space-Time Lensing Shader (AGSL / Android 13+)
+// Target: Pixel 9 Pro XL ARM Mali-G715 GPU / Skia Vulkan RuntimeShader
+// Optimized for Kirby Micro-Canvas (~350x250 px, <1 mW power consumption)
+
+uniform float2 uResolution;  // Viewport dimensions (px)
+uniform float  uTime;        // Animation time (seconds)
+uniform float2 uCenter;      // Black Hole singularity center (Kirby's mouth)
+uniform float  uStrength;    // Inhale distortion magnitude (0.0 to 1.0)
+uniform shader uContent;     // Input view content texture
+
+half4 main(float2 fragCoord) {
+    // Normalize coordinates relative to singularity center
+    float2 delta = fragCoord - uCenter;
+    float dist = length(delta);
+    float radius = min(uResolution.x, uResolution.y) * 0.45;
+
+    if (dist < radius && dist > 1.0) {
+        // Gravitational deflection factor: delta theta ~ 4GM / c^2 r
+        float pull = pow((1.0 - dist / radius), 2.2) * (0.35 * uStrength);
+        float angle = atan(delta.y, delta.x) + pull * 1.5 * sin(uTime * 3.0);
+        float newDist = dist * (1.0 - pull);
+        
+        float2 distortedCoord = uCenter + float2(cos(angle), sin(angle)) * newDist;
+        half4 color = uContent.eval(distortedCoord);
+
+        // Accretion disk starlight sparkle ring
+        float ring = smoothstep(radius * 0.25, radius * 0.28, dist) * 
+                     smoothstep(radius * 0.35, radius * 0.30, dist);
+        half4 sparkle = half4(1.0, 0.85, 0.4, 1.0) * ring * (0.6 + 0.4 * sin(angle * 8.0 + uTime * 6.0));
+
+        return mix(color, color + sparkle, uStrength);
+    }
+
+    return uContent.eval(fragCoord);
+}

@@ -1,0 +1,50 @@
+// 💙 Freeze Kirby Glacial Chill & Thermal Throttling Shader (AGSL / Android 13+)
+// Target: Pixel 9 Pro XL ARM Mali-G715 GPU / Skia Vulkan RuntimeShader
+// Micro-Overlay Frost Vignette & Sub-Surface Crystal Scattering
+
+uniform float2 uResolution;  // Dimensions (px)
+uniform float  uTime;        // Time (seconds)
+uniform float  uFrostCover;  // 0.0 (warm) to 1.0 (glacial freeze 34C)
+uniform shader uContent;     // Input content texture
+
+// Pseudo-random noise helper
+float hash(float2 p) {
+    return fract(sin(dot(p, float2(127.1, 311.7))) * 43758.5453);
+}
+
+// 2D Value Noise for organic ice crystal dendritic branching
+float noise(float2 p) {
+    float2 i = floor(p);
+    float2 f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    return mix(
+        mix(hash(i + float2(0.0, 0.0)), hash(i + float2(1.0, 0.0)), f.x),
+        mix(hash(i + float2(0.0, 1.0)), hash(i + float2(1.0, 1.0)), f.x),
+        f.y
+    );
+}
+
+half4 main(float2 fragCoord) {
+    half4 baseColor = uContent.eval(fragCoord);
+    if (uFrostCover <= 0.001) return baseColor;
+
+    float2 uv = fragCoord / uResolution;
+    // Edge proximity distance
+    float edgeDist = min(min(uv.x, 1.0 - uv.x), min(uv.y, 1.0 - uv.y)) * 2.0;
+
+    // Organic frost branching fractal
+    float icePattern = noise(uv * 14.0 + float2(sin(uTime * 0.2), cos(uTime * 0.2)));
+    icePattern += 0.5 * noise(uv * 28.0);
+    
+    // Frost edge threshold governed by uFrostCover
+    float frostThreshold = 1.0 - uFrostCover * 0.75;
+    float frostMask = smoothstep(frostThreshold, frostThreshold - 0.25, (1.0 - edgeDist) + icePattern * 0.25);
+
+    // Glacial Ice Tint (cyan-blue shimmer #8be9fd to #e0f2fe)
+    half4 iceTint = half4(0.55, 0.91, 0.99, 1.0);
+    half4 frostGlow = mix(baseColor, iceTint, frostMask * 0.7);
+
+    // Subtle frost shimmer sparkle
+    float shimmer = pow(noise(uv * 40.0 + uTime * 2.0), 4.0) * frostMask;
+    return frostGlow + half4(shimmer, shimmer, shimmer, 0.0);
+}

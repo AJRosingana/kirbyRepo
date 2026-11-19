@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="kirby_pink">#FF79C6</color>
+    <color name="kirby_deep_pink">#EC4899</color>
+    <color name="mesh_dark">#090C10</color>
+    <color name="mesh_surface">#161B22</color>
+    <color name="mesh_yellow">#F1FA8C</color>
+    <color name="mesh_cyan">#8BE9FD</color>
+</resources>\n

@@ -1,0 +1,41 @@
+// ⭐ Warp Star Cosmic Aura & Chromatic Dispersion Shader (AGSL / Android 13+)
+// Target: Pixel 9 Pro XL ARM Mali-G715 GPU / Skia Vulkan RuntimeShader
+// Rainbow Stardust Wave & Multi-Wavelength Chromatic Aberration
+
+uniform float2 uResolution;  // Dimensions (px)
+uniform float  uTime;        // Time (seconds)
+uniform float  uIntensity;   // Aura intensity (0.0 to 1.0)
+uniform shader uContent;     // Input content texture
+
+half4 main(float2 fragCoord) {
+    if (uIntensity <= 0.001) {
+        return uContent.eval(fragCoord);
+    }
+
+    float2 uv = fragCoord / uResolution;
+    
+    // Chromatic dispersion vector along radial direction from sprite center
+    float2 center = float2(0.5, 0.5);
+    float2 dir = uv - center;
+    float dist = length(dir);
+    float spread = 0.015 * uIntensity * sin(uTime * 4.0 + dist * 10.0);
+
+    // Sample R, G, B with slight spatial offset (dispersion)
+    half r = uContent.eval(fragCoord + dir * spread * 20.0).r;
+    half g = uContent.eval(fragCoord).g;
+    half b = uContent.eval(fragCoord - dir * spread * 20.0).b;
+    half a = uContent.eval(fragCoord).a;
+
+    // Cosmic stardust rainbow fringe along outer contours
+    float rainbowPhase = dist * 8.0 - uTime * 2.5;
+    half3 rainbow = half3(
+        0.5 + 0.5 * sin(rainbowPhase),
+        0.5 + 0.5 * sin(rainbowPhase + 2.094),
+        0.5 + 0.5 * sin(rainbowPhase + 4.188)
+    );
+
+    half4 dispersed = half4(r, g, b, a);
+    half4 aura = half4(rainbow * uIntensity * (1.0 - smoothstep(0.3, 0.55, dist)), 0.0);
+
+    return dispersed + aura * (1.0 - a);
+}
