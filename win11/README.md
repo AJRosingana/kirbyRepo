@@ -29,7 +29,7 @@ To guarantee **100% butter-smooth Windows 11 UI/UX**:
 
 ### 1. ⚡ 1-Click Instant Safe Mode (Recommended)
 Double-click:
-[`launch_kirby_win11_safe.bat`](file:///mnt/shared/AntiGravity_Shared/win11_kirby/launch_kirby_win11_safe.bat)
+[`launch_kirby_win11_safe.bat`](./launch_kirby_win11_safe.bat)
 - Terminates any previous ghost/lagging instances.
 - Automatically disables CPU Core 0 (`/affinity FE`).
 - Sets priority to `BelowNormal`.
@@ -38,7 +38,7 @@ Double-click:
 
 ### 2. 🎛️ Interactive Launcher
 Double-click:
-[`launch_kirby_win11.bat`](file:///mnt/shared/AntiGravity_Shared/win11_kirby/launch_kirby_win11.bat)
+[`launch_kirby_win11.bat`](./launch_kirby_win11.bat)
 Choose:
 - `[1]` Native Windows 11 WPF Overlay (Safe Affinity `0xFE`).
 - `[2]` High-DPI Edge App Companion (Safe Affinity `0xFE`, GPU-Accelerated).
@@ -49,7 +49,7 @@ Choose:
 
 ### 3. 🌐 Edge App Companion (Frameless Window)
 Double-click:
-[`launch_edge_companion.bat`](file:///mnt/shared/AntiGravity_Shared/win11_kirby/launch_edge_companion.bat)
+[`launch_edge_companion.bat`](./launch_edge_companion.bat)
 - Launched with `/belownormal /affinity FE` and GPU rasterization flags.
 - Direct URL: `http://100.121.245.47:8088/win11`.
 
@@ -66,7 +66,7 @@ Automatically audits all mesh/companion processes and strips Bit 0 (Core 0).
 
 ### 5. 🧹 Emergency Stop / Cleanup
 Double-click:
-[`kill_kirby_win11.bat`](file:///mnt/shared/AntiGravity_Shared/win11_kirby/kill_kirby_win11.bat)
+[`kill_kirby_win11.bat`](./kill_kirby_win11.bat)
 Instantly terminates all Kirby PowerShell and Edge companion processes.
 
 ---

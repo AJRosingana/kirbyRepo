@@ -1,0 +1,46 @@
+name: Web & Linux CI
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'server.ts'
+      - 'package.json'
+      - 'bun.lock'
+      - 'linux/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: TypeScript lint
+        run: bun run lint
+
+      - name: Production build
+        run: bun run build
+
+  linux-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Python syntax check
+        run: python3 -m py_compile linux/scripts/*.py
+
+      - name: Bash syntax check
+        run: bash -n linux/kirby linux/launch_kirby.sh
